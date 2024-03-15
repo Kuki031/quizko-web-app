@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateCategoryRequest;
 use App\Models\Category;
 use Exception;
 use Illuminate\Http\Request;
@@ -24,17 +25,13 @@ class CategoriesController extends Controller
 
 
 
-    public function store(Request $request)
+    public function store(CreateCategoryRequest $request)
     {
         try {
-            $rules = [
-                "name" => "required|unique:categories"
-            ];
 
-            $validateRules = $request->validate($rules);
-
+            $request->validated();
             $category = Category::create([
-                "name" => $validateRules['name'],
+                "name" => $request['name'],
             ]);
 
             return response()->json(["data" => $category], 201, ['status' => 'success']);

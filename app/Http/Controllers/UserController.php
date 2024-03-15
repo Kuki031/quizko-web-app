@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateQuizRequest;
 use App\Models\Quiz;
 use App\Models\User;
 use Exception;
@@ -114,43 +115,30 @@ class UserController extends Controller
 
 
     //Spremi kviz u kolekciju "Moji kvizovi"
-    public function storeQuiz(Request $request)
+    public function storeQuiz(CreateQuizRequest $request)
     {
         try {
             $user = User::checkAuth(Auth::class);
-
-            $rulesQuiz = [
-                "name" => "required|unique:quizzes,name",
-                "description" => "nullable|string|max:255",
-                "picture" => ['nullable', 'mimes:jpg,png,jpeg', 'max:5048'],
-                "is_quiz_locked" => "nullable|boolean",
-                "category_id" => "required|integer",
-                "starts_at" => "required|date",
-                "ends_at" => "required|date"
-            ];
-
-            $validateRulesQuiz = $request->validate($rulesQuiz);
-
+            $request->validated();
 
             if ($request->hasFile('picture') && $request->file('picture')->isValid()) {
                 $file = $request->file('picture');
                 $newImageName = uniqid() . '-' . $request->name . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('images'), $newImageName);
-            } else {
-                $newImageName = null;
-            }
+            } else $newImageName = null;
 
-            $description = $request->filled('description') ? $validateRulesQuiz['description'] : 'Nema opisa.';
-            $is_quiz_locked = $request->filled('is_quiz_locked') ? $validateRulesQuiz['is_quiz_locked'] : 0;
+
+            $description = $request->filled('description') ? $request['description'] : 'Nema opisa.';
+            $is_quiz_locked = $request->filled('is_quiz_locked') ? $request['is_quiz_locked'] : 0;
 
             $newQuiz = Quiz::create([
-                "name" => $validateRulesQuiz['name'],
+                "name" => $request['name'],
                 "description" => $description,
                 "picture" => $newImageName,
                 "is_quiz_locked" => $is_quiz_locked,
-                "category_id" => $validateRulesQuiz['category_id'],
-                "starts_at" => $validateRulesQuiz['starts_at'],
-                "ends_at" => $validateRulesQuiz['ends_at']
+                "category_id" => $request['category_id'],
+                "starts_at" => $request['starts_at'],
+                "ends_at" => $request['ends_at']
             ]);
 
             $user->myQuizzes()->attach($newQuiz);

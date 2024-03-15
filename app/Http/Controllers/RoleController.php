@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateRoleRequest;
 use App\Models\Role;
 
 use Exception;
@@ -21,15 +22,12 @@ class RoleController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(CreateRoleRequest $request)
     {
         try {
-            $rules = [
-                "role" => "required|unique:roles,role"
-            ];
 
-            $validate = $request->validate($rules);
-            $role = Role::create($validate);
+            $request->validated();
+            $role = Role::create($request);
 
             return response()->json(["role" => $role], 201, ['status' => 'success']);
         } catch (ValidationException $e) {

@@ -43,7 +43,7 @@ class QuizController extends Controller
             $quiz = Quiz::find($id);
             if (!$quiz) return response()->json(["error" => "Kviz sa ID-em $id ne postoji."], 404, ['status' => 'fail']);
 
-            $saveQuiz = $user->savedQuizzes()->attach($quiz);
+            $user->savedQuizzes()->attach($quiz);
 
             return response()->json(["message" => "Kviz uspješno spremljen u kolekciju."], 200, ['status' => 'success']);
         } catch (Exception $e) {
