@@ -34,7 +34,7 @@ class AuthController extends Controller
             if (Auth::attempt($credentials)) {
                 $user = Auth::user();
                 $token = User::createAuthToken($user, "quizko");
-                return response()->json(["user" => $user, "token" => $token], 200, ['status' => 'success'])->withCookie(cookie('quizko', $token));
+                return response()->json(["user" => $user, "token" => $token], 200, ['status' => 'success']);
             }
 
             return response()->json(['error' => 'Netočan e-mail ili lozinka.'], 400, ['status' => 'fail']);
@@ -66,7 +66,7 @@ class AuthController extends Controller
 
             User::sendMail(Mail::class, $user->email, WelcomeMail::class, 'Potvrda e-mail adrese.', "Molimo potvrdite Vašu e-mail adresu tako što ćete kliknuti na sljedeći link: $setUrl/users/confirm-email/$mailToken");
 
-            return response()->json(['message' => 'Registracija uspješna.', "token" => $token], 201)->withCookie(cookie('quizko', $token));
+            return response()->json(['message' => 'Registracija uspješna.', "token" => $token], 201);
         } catch (ValidationException $e) {
             return response()->json(["error" => $e->errors()], 400, ['status' => 'fail']);
         } catch (Exception $e) {
@@ -108,7 +108,7 @@ class AuthController extends Controller
 
             $token = User::createAuthToken($user, "quizko");
 
-            return response()->json(["message" => "Lozinka uspješno ažurirana.", "token" => $token], 200, ['status' => 'success'])->withCookie(cookie('quizko', $token));
+            return response()->json(["message" => "Lozinka uspješno ažurirana.", "token" => $token], 200, ['status' => 'success']);
         } catch (ValidationException $e) {
             return response()->json(["error" => $e->errors()], 400, ['status' => 'fail']);
         } catch (Exception $e) {
@@ -161,7 +161,7 @@ class AuthController extends Controller
     public function logOut()
     {
         $user = User::checkAuth(Auth::class);
-        $user->currentAccessToken()->delete();
+        $user->tokens()->delete();
         return response()->json(['message' => 'Odjavili ste se iz aplikacije.'], 200, ['status' => 'success']);
     }
 }
