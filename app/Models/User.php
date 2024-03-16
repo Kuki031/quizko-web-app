@@ -56,6 +56,13 @@ class User extends Authenticatable
         return $hashModel::check($candidate, $currentPassword);
     }
 
+    public static function revokeSetToken($obj, $model, $name)
+    {
+        $obj->currentAccessToken()->delete();
+        $refreshToken = $model::createAuthToken($obj, $name);
+        return $refreshToken;
+    }
+
     protected $fillable = [
         'username',
         'email',

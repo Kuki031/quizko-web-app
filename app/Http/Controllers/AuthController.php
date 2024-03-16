@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ForgotPasswordRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\ResetPasswordRequest;
+use App\Http\Requests\UpdatePasswordRequest;
 use App\Mail\ResetPasswordMail;
 use App\Mail\WelcomeMail;
 use App\Models\User;
@@ -87,32 +88,29 @@ class AuthController extends Controller
             return response()->json(["error" => $e->getMessage()], 500, ['status' => 'fail']);
         }
     }
-    public function updatePassword(Request $request)
+    public function updatePassword(UpdatePasswordRequest $request)
     {
         try {
             $user = User::checkAuth(Auth::class);
-            if (!$user) return response()->json(["error" => "Niste prijavljeni u sustav."], 401, ['status' => 'fail']);
 
-            $rules = [
-                "username" => "required|unique:users,username," . $user->id,
-                "password" => "required",
-                "password_new" => "required|string|min:8",
-                "password_confirmation" => "required_with:password_new|same:password_new"
-            ];
+            $request->validated();
+            if (!User::comparePassword(Hash::class, $request['password'], $user->password)) {
+                $newToken = User::revokeSetToken($user, User::class, "quizko");
+                return response()->json(["error" => "Trenutna lozinka nije ispravna.", "token" => $newToken], 400, ['status' => 'fail']);
+            }
 
-            $validateData = $request->validate($rules);
-            if (!User::comparePassword(Hash::class, $validateData['password'], $user->password)) return response()->json(["error" => "Trenutna lozinka nije ispravna."], 400, ['status' => 'fail']);
+            $hashedPassword = User::hashPassword(Hash::class, $request['password_new']);
+            User::where('id', $user->id)->update(['password' => $hashedPassword], $request);
 
-            $hashedPassword = User::hashPassword(Hash::class, $validateData['password_new']);
-            User::where('id', $user->id)->update(['password' => $hashedPassword], $validateData);
-
-            $token = User::createAuthToken($user, "quizko");
+            $token = User::revokeSetToken($user, User::class, "quizko");
 
             return response()->json(["message" => "Lozinka uspješno ažurirana.", "token" => $token], 200, ['status' => 'success']);
         } catch (ValidationException $e) {
-            return response()->json(["error" => $e->errors()], 400, ['status' => 'fail']);
+            $newToken = User::revokeSetToken($user, User::class, "quizko");
+            return response()->json(["error" => $e->errors(), "token" => $newToken], 400, ['status' => 'fail']);
         } catch (Exception $e) {
-            return response()->json(["error" => $e->getMessage()], 500, ['status' => 'fail']);
+            $newToken = User::revokeSetToken($user, User::class, "quizko");
+            return response()->json(["error" => $e->getMessage(), "token" => $newToken], 500, ['status' => 'fail']);
         }
     }
     public function forgotPassword(ForgotPasswordRequest $request)

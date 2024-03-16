@@ -17,10 +17,7 @@ class UserController extends Controller
     {
         try {
             $user = User::checkAuth(Auth::class);
-
-            if (!$user) return response()->json(["error" => "Niste prijavljeni u sustav."], 400, ['status' => 'fail']);
-
-            $userData = User::findOrFail($user->id);
+            $userData = User::find($user->id);
 
             if (!$userData) return response()->json(["error" => "Korisnik ne postoji."], 404, ['status' => 'fail']);
             return response()->json(["user" => $userData], 200, ['status' => 'success']);
@@ -35,8 +32,6 @@ class UserController extends Controller
         try {
             $user = User::checkAuth(Auth::class);
 
-            if (!$user) return response()->json(["error" => "Niste prijavljeni u sustav."], 401, ['status' => 'fail']);
-
             User::where('id', $user->id)->update(['is_account_active' => 0]);
             return response()->json(["message" => "Račun uspješno deaktiviran. Račun možete aktivirati ponovo kada poželite."], 200, ['status' => 'success']);
         } catch (Exception $e) {
@@ -49,8 +44,6 @@ class UserController extends Controller
         try {
             $user = User::checkAuth(Auth::class);
 
-            if (!$user) return response()->json(["error" => "Niste prijavljeni u sustav."], 401, ['status' => 'fail']);
-
             User::where('id', $user->id)->update(['is_account_active' => 1]);
             return response()->json(["message" => "Uspješno ste reaktivirali svoj korisnički račun"], 200, ['status' => 'success']);
         } catch (Exception $e) {
@@ -60,27 +53,24 @@ class UserController extends Controller
 
     public function updateMe(Request $request)
     {
-        //Treba dodat sliku profila
         try {
             $user = User::checkAuth(Auth::class);
-            if (!$user) return response()->json(["error" => "Niste prijavljeni u sustav."], 401, ['status' => 'fail']);
 
             $rules = [
-                "username" => "nullable|unique:users,username," . $user->username,
+                "username" => "nullable|unique:users,username," . $user->id,
             ];
             $validateData = $request->validate($rules);
 
             User::where('id', $user->id)->update($validateData);
 
-
-
-            $token = User::createAuthToken($user, "quizko");
-
+            $token = User::revokeSetToken($user, User::class, "quizko");
             return response()->json(["message" => "Profil uspješno ažuriran.", "token" => $token], 200, ['status' => 'success'])->withCookie(cookie("quizko", $token));
         } catch (ValidationException $e) {
-            return response()->json(["error" => $e->errors()], 400, ['status' => 'fail']);
+            $newToken = User::revokeSetToken($user, User::class, "quizko");
+            return response()->json(["error" => $e->errors(), "token" => $newToken], 400, ['status' => 'fail']);
         } catch (Exception $e) {
-            return response()->json(["error" => $e->getMessage()], 500, ['status' => 'fail']);
+            $newToken = User::revokeSetToken($user, User::class, "quizko");
+            return response()->json(["error" => $e->getMessage(), "token" => $newToken], 500, ['status' => 'fail']);
         }
     }
 
