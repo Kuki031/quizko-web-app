@@ -9,7 +9,7 @@ use App\Models\Category;
 use App\Models\Question;
 use App\Models\QuestionType;
 use App\Models\Quiz;
-//use App\Models\Role;
+use App\Models\Role;
 use App\Models\Scoreboard;
 use App\Models\Team;
 use App\Models\User;
@@ -22,14 +22,28 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        //Role::factory(3)->create();
-        User::factory(20)->create();
-        Team::factory(10)->create();
-        Scoreboard::factory(5)->create();
-        Category::factory(5)->create();
-        Quiz::factory(20)->create();
-        QuestionType::factory(6)->create();
-        Question::factory(50)->create();
-        Answer::factory(100)->create();
+        $roles = ['Administrator', 'Moderator', 'Guest'];
+
+        foreach ($roles as $role) {
+            Role::factory()->create([
+                "role" => $role
+            ]);
+        }
+
+        // User::factory(20)->create();
+        // Team::factory(10)->create();
+        // Scoreboard::factory(5)->create();
+        $categories = ['IT', 'Opce znanje', 'Filozofija', 'Povijest', 'Filmovi', 'Gaming'];
+
+        foreach ($categories as $category) {
+            Category::factory()->create([
+                "name" => $category
+            ]);
+        }
+
+        // Quiz::factory(20)->create();
+        // QuestionType::factory(6)->create();
+        // Question::factory(50)->create();
+        // Answer::factory(100)->create();
     }
 }

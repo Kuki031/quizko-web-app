@@ -8,6 +8,7 @@ use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Requests\UpdatePasswordRequest;
 use App\Mail\ResetPasswordMail;
 use App\Mail\WelcomeMail;
+use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -49,9 +50,7 @@ class AuthController extends Controller
 
             $request->validated();
 
-
             $mailToken = User::generateHexToken();
-
             $user = User::create([
                 'username' => $request['username'],
                 'email' => $request['email'],
