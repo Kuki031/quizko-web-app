@@ -8,7 +8,6 @@ use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Requests\UpdatePasswordRequest;
 use App\Mail\ResetPasswordMail;
 use App\Mail\WelcomeMail;
-use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -94,22 +93,19 @@ class AuthController extends Controller
 
             $request->validated();
             if (!User::comparePassword(Hash::class, $request['password'], $user->password)) {
-                $newToken = User::revokeSetToken($user, User::class, "quizko");
-                return response()->json(["error" => "Trenutna lozinka nije ispravna.", "token" => $newToken], 400, ['status' => 'fail']);
+                return response()->json(["error" => "Trenutna lozinka nije ispravna."], 400, ['status' => 'fail']);
             }
 
             $hashedPassword = User::hashPassword(Hash::class, $request['password_new']);
             User::where('id', $user->id)->update(['password' => $hashedPassword], $request);
 
-            $token = User::revokeSetToken($user, User::class, "quizko");
+            $token = User::createAuthToken($user, "quizko");
 
             return response()->json(["message" => "Lozinka uspješno ažurirana.", "token" => $token], 200, ['status' => 'success']);
         } catch (ValidationException $e) {
-            $newToken = User::revokeSetToken($user, User::class, "quizko");
-            return response()->json(["error" => $e->errors(), "token" => $newToken], 400, ['status' => 'fail']);
+            return response()->json(["error" => $e->errors()], 400, ['status' => 'fail']);
         } catch (Exception $e) {
-            $newToken = User::revokeSetToken($user, User::class, "quizko");
-            return response()->json(["error" => $e->getMessage(), "token" => $newToken], 500, ['status' => 'fail']);
+            return response()->json(["error" => $e->getMessage()], 500, ['status' => 'fail']);
         }
     }
     public function forgotPassword(ForgotPasswordRequest $request)

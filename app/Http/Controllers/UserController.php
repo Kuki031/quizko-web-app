@@ -62,15 +62,12 @@ class UserController extends Controller
             $validateData = $request->validate($rules);
 
             User::where('id', $user->id)->update($validateData);
-
-            $token = User::revokeSetToken($user, User::class, "quizko");
-            return response()->json(["message" => "Profil uspješno ažuriran.", "token" => $token], 200, ['status' => 'success'])->withCookie(cookie("quizko", $token));
+            $token = User::createAuthToken($user, "quizko");
+            return response()->json(["message" => "Profil uspješno ažuriran.", "token" => $token], 200, ['status' => 'success']);
         } catch (ValidationException $e) {
-            $newToken = User::revokeSetToken($user, User::class, "quizko");
-            return response()->json(["error" => $e->errors(), "token" => $newToken], 400, ['status' => 'fail']);
+            return response()->json(["error" => $e->errors()], 400, ['status' => 'fail']);
         } catch (Exception $e) {
-            $newToken = User::revokeSetToken($user, User::class, "quizko");
-            return response()->json(["error" => $e->getMessage(), "token" => $newToken], 500, ['status' => 'fail']);
+            return response()->json(["error" => $e->getMessage()], 500, ['status' => 'fail']);
         }
     }
 
