@@ -79,7 +79,7 @@ class UserController extends Controller
 
             $user = User::checkAuth(Auth::class);
             $myQuizzes = $user->myQuizzes()->get();
-            return response()->json(["my_quizzes" => $myQuizzes], 200, ['status']);
+            return response()->json(["my_quizzes" => $myQuizzes], 200, ['status' => 'success']);
         } catch (Exception $e) {
             return response()->json(["error" => $e->getMessage()], 500, ['status' => 'fail']);
         }

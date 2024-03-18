@@ -9,7 +9,10 @@ class Team extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'name'
+        'name',
+        'team_leader',
+        'num_of_members',
+        'capacity'
     ];
 
     public function scoreboards()
@@ -19,6 +22,6 @@ class Team extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class, 'users_teams', 'team_id', 'user_id');
     }
 }

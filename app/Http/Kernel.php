@@ -51,6 +51,9 @@ class Kernel extends HttpKernel
         ],
         'auth.isactive' => [
             \App\Http\Middleware\IsUserActive::class
+        ],
+        'isInTeam' => [
+            \App\Http\Middleware\TeamMiddleware::class
         ]
     ];
 
@@ -75,6 +78,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'auth.admin' => \App\Http\Middleware\AdminMiddleware::class,
         'auth.email' => \App\Http\Middleware\IsEmailConfirmed::class,
-        'auth.isactive' => \App\Http\Middleware\IsUserActive::class
+        'auth.isactive' => \App\Http\Middleware\IsUserActive::class,
+        'isInTeam' => \App\Http\Middleware\TeamMiddleware::class
     ];
 }

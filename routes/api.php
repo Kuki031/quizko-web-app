@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\TeamController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -64,5 +65,22 @@ Route::prefix('/quizzes')->group(function () {
         Route::post('/my-quizzes/create-new-quiz', [UserController::class, 'storeQuiz'])->name('quizzes.storeQuiz');
         Route::patch('/my-quizzes/update-quiz/{id}', [UserController::class, 'updateMyQuiz'])->name('quizzes.updateMyQuiz');
         Route::delete('/my-quizzes/delete-quiz/{id}', [UserController::class, 'deleteMyQuiz'])->name('quizzes.deleteMyQuiz');
+    });
+});
+
+
+//Teams
+Route::prefix('/teams')->group(function () {
+    Route::middleware(['auth:sanctum', 'auth.isactive', 'auth.email'])->group(function () {
+        Route::get('/all', [TeamController::class, 'getAllTeams'])->name('teams.getAllTeams');
+        Route::middleware('isInTeam')->group(function () {
+            Route::post('/create-team', [TeamController::class, 'createNewTeam'])->name('teams.createNewTeam');
+            Route::patch('/join-team/{id}', [TeamController::class, 'joinTeam'])->name('teams.joinName');
+        });
+        Route::patch('/leave-team/{id}', [TeamController::class, 'leaveTeam'])->name('teams.leaveTeam');
+        Route::get('/my-teams', [TeamController::class, 'getMyTeam'])->name('teams.getMyTeam');
+        Route::patch('/update-team/{id}', [TeamController::class, 'updateTeam'])->name('teams.updateTeam');
+        Route::delete('/delete-team/{id}', [TeamController::class, 'deleteTeam'])->name('teams.deleteTeam');
+        Route::get('/{id}', [TeamController::class, 'getSingleTeam'])->name('teams.getSingleTeam');
     });
 });

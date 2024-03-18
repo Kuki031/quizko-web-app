@@ -21,7 +21,7 @@ return new class extends Migration
             $table->boolean('is_account_active')->default(true);
             $table->string('password')->nullable(false);
             $table->string('api_token', 80)->unique()->nullable()->default(null);
-            $table->string('profile_picture')->nullable()->default('Nije postavljena slika profila.');
+            $table->boolean('is_in_team')->nullable()->default(false);
             $table->unsignedBigInteger('role_id')->nullable(false)->default(3);
             $table->string('confirm_email_token')->nullable();
             $table->string('forgot_password_token')->nullable();

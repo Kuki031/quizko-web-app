@@ -15,6 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('name', 60)->unique()->nullable(false);
             $table->integer('points_earned')->default(0);
+            $table->integer('capacity')->default(4);
+            $table->integer('num_of_members')->default(0);
+            $table->unsignedBigInteger('team_leader')->nullable();
+            $table->foreign('team_leader')->references('id')->on('users')->onUpdate('cascade');
             $table->timestamps();
         });
     }

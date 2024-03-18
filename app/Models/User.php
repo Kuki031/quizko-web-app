@@ -91,7 +91,7 @@ class User extends Authenticatable
 
     public function teams()
     {
-        return $this->belongsToMany(Team::class);
+        return $this->belongsToMany(Team::class, 'users_teams', 'user_id', 'team_id');
     }
 
     public function myQuizzes()

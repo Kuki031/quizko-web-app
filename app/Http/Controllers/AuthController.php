@@ -53,7 +53,6 @@ class AuthController extends Controller
             $user = User::create([
                 'username' => $request['username'],
                 'email' => $request['email'],
-                'profile_picture' => User::storeImage($request) ?? 'default.jpg',
                 'password' => User::hashPassword(Hash::class, $request['password']),
                 'password_confirm' => $request['password_confirm'],
                 'confirm_email_token' => $mailToken,
