@@ -92,19 +92,22 @@ class AuthController extends Controller
 
             $request->validated();
             if (!User::comparePassword(Hash::class, $request['password'], $user->password)) {
-                return response()->json(["error" => "Trenutna lozinka nije ispravna."], 400, ['status' => 'fail']);
+                $refreshToken = User::revokeSetToken($user, User::class, "quizko");
+                return response()->json(["error" => "Trenutna lozinka nije ispravna.", "token" => $refreshToken], 400, ['status' => 'fail']);
             }
 
             $hashedPassword = User::hashPassword(Hash::class, $request['password_new']);
             User::where('id', $user->id)->update(['password' => $hashedPassword], $request);
 
-            $token = User::createAuthToken($user, "quizko");
+            $token = User::revokeSetToken($user, User::class, "quizko");
 
             return response()->json(["message" => "Lozinka uspješno ažurirana.", "token" => $token], 200, ['status' => 'success']);
         } catch (ValidationException $e) {
-            return response()->json(["error" => $e->errors()], 400, ['status' => 'fail']);
+            $refreshToken = User::revokeSetToken($user, User::class, "quizko");
+            return response()->json(["error" => $e->errors(), "token" => $refreshToken], 400, ['status' => 'fail']);
         } catch (Exception $e) {
-            return response()->json(["error" => $e->getMessage()], 500, ['status' => 'fail']);
+            $refreshToken = User::revokeSetToken($user, User::class, "quizko");
+            return response()->json(["error" => $e->getMessage(), "token" => $refreshToken], 500, ['status' => 'fail']);
         }
     }
     public function forgotPassword(ForgotPasswordRequest $request)

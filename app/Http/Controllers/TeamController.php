@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Auth;
 
 class TeamController extends Controller
 {
+
+    //Dohvati sve timove iz baze
     public function getAllTeams()
     {
         try {
@@ -23,10 +25,10 @@ class TeamController extends Controller
         }
     }
 
+    //Dohvati jedan tim iz baze
     public function getSingleTeam(string $id)
     {
         try {
-
             $team = Team::find($id);
 
             if (!$team) return response()->json(["error" => "Traženi tim ne postoji. Pokušajte ponovo."], 404, ['status' => 'fail']);
@@ -37,6 +39,7 @@ class TeamController extends Controller
         }
     }
 
+    //Kreiraj novi tim
     public function createNewTeam(CreateTeamRequest $request)
     {
         try {
@@ -56,6 +59,7 @@ class TeamController extends Controller
         }
     }
 
+    //Dohvati svoj tim (u kojem je korisnik trenutno)
     public function getMyTeam()
     {
         try {
@@ -69,6 +73,7 @@ class TeamController extends Controller
         }
     }
 
+    //Pridruži se timu
     public function joinTeam(string $id)
     {
         try {
@@ -77,6 +82,7 @@ class TeamController extends Controller
             $teamToJoin = Team::find($id);
 
             if (!$teamToJoin) return response()->json(["error" => "Tim sa ID-em $id ne postoji."], 400, ['status' => 'fail']);
+            if ($teamToJoin->num_of_members === $teamToJoin->capacity) return response()->json(["error" => "Ne možete se pridružiti timu, tim je popunjen!"], 400, ['status' => 'fail']);
 
             $teamToJoin->increment('num_of_members');
 
@@ -89,6 +95,7 @@ class TeamController extends Controller
         }
     }
 
+    //Izadi iz tima
     public function leaveTeam(string $id)
     {
         try {
@@ -113,6 +120,7 @@ class TeamController extends Controller
         }
     }
 
+    //Azuriraj tim (samo tim lider)
     public function updateTeam(Request $request, string $id)
     {
         try {
@@ -137,6 +145,22 @@ class TeamController extends Controller
         }
     }
 
+    //Prikazi sve clanove nekog tima
+    public function displayTeamMembers(string $id)
+    {
+        try {
+            $usersInTeam = Team::find($id);
+            $users = $usersInTeam->users;
+
+            if (!$usersInTeam) return response()->json(["error" => "Tim sa ID-em $id ne postoji. Pokušajte ponovo."], 404, ['status' => 'fail']);
+
+            return response()->json(["members" => $users], 200, ['status' => 'success']);
+        } catch (Exception $e) {
+            return response()->json(["error" => $e->getMessage()], 500, ['status' => 'fail']);
+        }
+    }
+
+    //Obrisi tim (samo tim lider => svi korisnici koji su bili u ovom timu updatea im se is_in_team = false, pa se mogu pridruziti nekom drugom timu)
     public function deleteTeam(string $id)
     {
         try {
@@ -148,8 +172,16 @@ class TeamController extends Controller
             if (!$team) return response()->json(["error" => "Tim sa ID-em $id ne postoji. Pokušajte ponovo."], 404, ['status' => 'fail']);
             if ($user->id !== $team->team_leader) return response()->json(["error" => "Ne možete uređivati tim jer niste tim lider."], 400, ['status' => 'fail']);
 
+
+            $usersInTeam = Team::find($id);
+            $users = $usersInTeam->users;
+
+            foreach ($users as $user) {
+                $user->is_in_team = false;
+                $user->save();
+            }
+
             $team->destroy($id);
-            User::where('id', $user->id)->update(["is_in_team" => false]);
             return response()->json([], 204, ['status' => 'success']);
         } catch (Exception $e) {
             return response()->json(["error" => $e->getMessage()], 500, ['status' => 'fail']);

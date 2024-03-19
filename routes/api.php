@@ -77,6 +77,7 @@ Route::prefix('/teams')->group(function () {
             Route::post('/create-team', [TeamController::class, 'createNewTeam'])->name('teams.createNewTeam');
             Route::patch('/join-team/{id}', [TeamController::class, 'joinTeam'])->name('teams.joinName');
         });
+        Route::get('/members/{id}', [TeamController::class, 'displayTeamMembers'])->name('teams.displayTeamMembers');
         Route::patch('/leave-team/{id}', [TeamController::class, 'leaveTeam'])->name('teams.leaveTeam');
         Route::get('/my-teams', [TeamController::class, 'getMyTeam'])->name('teams.getMyTeam');
         Route::patch('/update-team/{id}', [TeamController::class, 'updateTeam'])->name('teams.updateTeam');
