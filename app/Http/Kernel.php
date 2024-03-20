@@ -54,6 +54,9 @@ class Kernel extends HttpKernel
         ],
         'isInTeam' => [
             \App\Http\Middleware\TeamMiddleware::class
+        ],
+        'IsInQuizMiddleware' => [
+            \App\Http\Middleware\IsInQuizMiddleware::class
         ]
     ];
 
@@ -79,6 +82,7 @@ class Kernel extends HttpKernel
         'auth.admin' => \App\Http\Middleware\AdminMiddleware::class,
         'auth.email' => \App\Http\Middleware\IsEmailConfirmed::class,
         'auth.isactive' => \App\Http\Middleware\IsUserActive::class,
-        'isInTeam' => \App\Http\Middleware\TeamMiddleware::class
+        'isInTeam' => \App\Http\Middleware\TeamMiddleware::class,
+        'IsInQuizMiddleware' => \App\Http\Middleware\IsInQuizMiddleware::class
     ];
 }

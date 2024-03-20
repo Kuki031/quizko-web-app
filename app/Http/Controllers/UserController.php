@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateQuizRequest;
+use App\Http\Requests\CreateScoreboardRequest;
 use App\Models\Quiz;
+use App\Models\Scoreboard;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -104,7 +106,7 @@ class UserController extends Controller
 
 
     //Spremi kviz u kolekciju "Moji kvizovi"
-    public function storeQuiz(CreateQuizRequest $request)
+    public function storeQuiz(CreateQuizRequest $request, CreateScoreboardRequest $scoreboardRequest)
     {
         try {
             $user = User::checkAuth(Auth::class);
@@ -117,6 +119,13 @@ class UserController extends Controller
             } else $newImageName = null;
 
 
+            //Novi scoreboard za svaki kviz
+            $scoreboardRequest->validated();
+            $newScoreboard = Scoreboard::create([
+                "name" => $scoreboardRequest->name . " " . "ljestvica" . "-" . rand(0, 9999)
+            ]);
+
+
             $description = $request->filled('description') ? $request['description'] : 'Nema opisa.';
             $is_quiz_locked = $request->filled('is_quiz_locked') ? $request['is_quiz_locked'] : 0;
 
@@ -126,9 +135,11 @@ class UserController extends Controller
                 "picture" => $newImageName,
                 "is_quiz_locked" => $is_quiz_locked,
                 "category_id" => $request['category_id'],
+                "scoreboard_id" => $newScoreboard->id,
                 "starts_at" => $request['starts_at'],
                 "ends_at" => $request['ends_at']
             ]);
+
 
             $user->myQuizzes()->attach($newQuiz);
             $user->savedQuizzes()->attach($newQuiz->id);

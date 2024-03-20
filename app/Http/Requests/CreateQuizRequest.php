@@ -22,11 +22,12 @@ class CreateQuizRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "name" => ["required", "unique:quizzes,name"],
+            "name" => ["required", "unique:quizzes,name", 'max:60'],
             "description" => ["nullable", "string", "max:255"],
             "picture" => ['nullable', 'mimes:jpg,png,jpeg', 'max:5048'],
             "is_quiz_locked" => ["nullable", "boolean"],
             "category_id" => ["required", "integer"],
+            "scoreboard_id" => ["nullable", "integer"],
             "starts_at" => ["required", "date"],
             "ends_at" => ["required", "date"]
         ];

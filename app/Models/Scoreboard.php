@@ -15,6 +15,11 @@ class Scoreboard extends Model
 
     public function teams()
     {
-        return $this->belongsToMany(Team::class);
+        return $this->belongsToMany(Team::class, 'scoreboards_teams', 'scoreboard_id', 'team_id');
+    }
+
+    public function quiz()
+    {
+        return $this->hasOne(Quiz::class);
     }
 }

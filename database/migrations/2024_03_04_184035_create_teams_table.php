@@ -18,7 +18,10 @@ return new class extends Migration
             $table->integer('capacity')->default(4);
             $table->integer('num_of_members')->default(0);
             $table->unsignedBigInteger('team_leader')->nullable();
+            $table->boolean('is_currently_in_quiz')->default(false);
+            $table->unsignedBigInteger('quiz_session_id')->nullable();
             $table->foreign('team_leader')->references('id')->on('users')->onUpdate('cascade');
+            $table->foreign('quiz_session_id')->references('id')->on('quizzes')->onUpdate('cascade');
             $table->timestamps();
         });
     }

@@ -13,13 +13,12 @@ return new class extends Migration
     {
         Schema::create('scoreboards_teams', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
             $table->unsignedBigInteger('team_id')->nullable();
             $table->unsignedBigInteger('scoreboard_id')->nullable();
             $table->foreign('team_id')->references('id')->on('teams')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('scoreboard_id')->references('id')->on('scoreboards')->onDelete('cascade')->onUpdate('cascade');
-
             $table->unique(['team_id', 'scoreboard_id']);
+            $table->timestamps();
         });
     }
 

@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('password')->nullable(false);
             $table->string('api_token', 80)->unique()->nullable()->default(null);
             $table->boolean('is_in_team')->nullable()->default(false);
+            $table->boolean('is_currently_in_quiz')->default(false);
             $table->unsignedBigInteger('role_id')->nullable(false)->default(3);
             $table->string('confirm_email_token')->nullable();
             $table->string('forgot_password_token')->nullable();

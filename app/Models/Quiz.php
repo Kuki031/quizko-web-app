@@ -11,7 +11,7 @@ class Quiz extends Model
 
     protected $fillable = [
         'name', 'picture', 'description', 'category_id',
-        'is_quiz_locked', 'starts_at', 'ends_at'
+        'is_quiz_locked', 'starts_at', 'ends_at', 'scoreboard_id'
     ];
 
     public static function storeImage($request)
@@ -43,5 +43,15 @@ class Quiz extends Model
     public function questions()
     {
         return $this->hasMany(Question::class);
+    }
+
+    public function scoreboard()
+    {
+        return $this->belongsTo(Scoreboard::class);
+    }
+
+    public function teams()
+    {
+        return $this->hasMany(Team::class);
     }
 }

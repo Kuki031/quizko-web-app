@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\ScoreboardController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -77,11 +78,27 @@ Route::prefix('/teams')->group(function () {
             Route::post('/create-team', [TeamController::class, 'createNewTeam'])->name('teams.createNewTeam');
             Route::patch('/join-team/{id}', [TeamController::class, 'joinTeam'])->name('teams.joinName');
         });
+        Route::middleware('IsInQuizMiddleware')->patch('/join-quiz/{teamId}/quiz/{quizId}', [TeamController::class, 'joinQuiz'])->name('teams.joinQuiz')->name('teams.joinQuiz');
+        Route::patch('/leave-quiz/{teamId}/quiz/{quizId}', [TeamController::class, 'leaveQuiz'])->name('teams.leaveQuiz');
         Route::get('/members/{id}', [TeamController::class, 'displayTeamMembers'])->name('teams.displayTeamMembers');
         Route::patch('/leave-team/{id}', [TeamController::class, 'leaveTeam'])->name('teams.leaveTeam');
         Route::get('/my-teams', [TeamController::class, 'getMyTeam'])->name('teams.getMyTeam');
         Route::patch('/update-team/{id}', [TeamController::class, 'updateTeam'])->name('teams.updateTeam');
         Route::delete('/delete-team/{id}', [TeamController::class, 'deleteTeam'])->name('teams.deleteTeam');
         Route::get('/{id}', [TeamController::class, 'getSingleTeam'])->name('teams.getSingleTeam');
+    });
+});
+
+
+//Scoreboards
+Route::prefix('/scoreboards')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/all', [ScoreboardController::class, 'index'])->name('scoreboards.index');
+        Route::get('/{id}', [ScoreboardController::class, 'show'])->name('scoreboards.show');
+        Route::middleware('auth.admin')->group(function () {
+            Route::post('/new-scoreboard', [ScoreboardController::class, 'store'])->name('scoreboards.store');
+            Route::patch('/update-scoreboard/{id}', [ScoreboardController::class, 'update'])->name('scoreboards.update');
+            Route::delete('/delete-scoreboard/{id}', [ScoreboardController::class, 'destroy'])->name('scoreboards.destroy');
+        });
     });
 });

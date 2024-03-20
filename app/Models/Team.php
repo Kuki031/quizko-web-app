@@ -17,11 +17,16 @@ class Team extends Model
 
     public function scoreboards()
     {
-        return $this->belongsToMany(Scoreboard::class);
+        return $this->belongsToMany(Scoreboard::class, 'scoreboards_teams', 'team_id', 'scoreboard_id');
     }
 
     public function users()
     {
         return $this->belongsToMany(User::class, 'users_teams', 'team_id', 'user_id');
+    }
+
+    public function quiz()
+    {
+        return $this->belongsTo(Quiz::class);
     }
 }

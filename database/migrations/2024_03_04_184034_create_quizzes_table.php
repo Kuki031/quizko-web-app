@@ -20,8 +20,10 @@ return new class extends Migration
             $table->boolean('is_quiz_locked')->default(false);
             $table->dateTime('starts_at')->nullable(false);
             $table->dateTime('ends_at')->nullable(false);
+            $table->unsignedBigInteger('scoreboard_id');
             $table->timestamps();
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('scoreboard_id')->references('id')->on('scoreboards')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 
